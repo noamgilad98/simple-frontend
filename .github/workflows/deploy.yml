@@ -49,3 +49,6 @@ jobs:
             --registry-server chargemateacr.azurecr.io \
             --cpu 0.5 --memory 1.0Gi \
             --min-replicas 1 --max-replicas 1
+
+
+            
