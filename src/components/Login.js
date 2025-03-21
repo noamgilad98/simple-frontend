@@ -26,7 +26,7 @@ const Login = () => {
       <form onSubmit={handleLogin}>
         <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Login</button>
+        <button type="submit123">Login</button>
       </form>
       <p>Don't have an account? <a href="/register">Register</a></p>
     </div>
