@@ -10,7 +10,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5001/api/register", { email, password });
+      await axios.post("https://simple-backend.blackbeach-648901e3.westeurope.azurecontainerapps.io/api/register", { email, password });
       navigate("/login");
     } catch (err) {
       alert("Registration failed");

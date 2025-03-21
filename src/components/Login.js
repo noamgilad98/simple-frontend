@@ -10,7 +10,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5001/api/login", { email, password });
+      const res = await axios.post("https://simple-backend.blackbeach-648901e3.westeurope.azurecontainerapps.io/api/login", { email, password });
       if (res.data.success) {
         localStorage.setItem("token", res.data.token);
         navigate("/dashboard");
