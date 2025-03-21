@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -13,16 +17,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Log in to Azure using Service Principal
+      - name: Log in to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          client-id: 3d662f23-d65a-4969-bc37-8fcaf04750f4
+          tenant-id: 3e9340c6-1760-43f1-908c-c23ed3f4ba44
+          subscription-id: 7a1fc7a2-a2fd-4206-882c-c6fb039432bb
 
       - name: Log in to Azure Container Registry
-        run: az acr login --name chargemateacr
+        run: |
+          az acr login --name chargemateacr
 
       - name: Build and Push Docker Image
         run: |
@@ -31,6 +35,10 @@ jobs:
 
       - name: Deploy to Azure Container Apps
         run: |
+          az containerapp update \
+            --name simple-frontend \
+            --resource-group chargeMate \
+            --image chargemateacr.azurecr.io/simple-frontend:latest || \
           az containerapp create \
             --name simple-frontend \
             --resource-group chargeMate \
@@ -39,11 +47,5 @@ jobs:
             --target-port 80 \
             --ingress external \
             --registry-server chargemateacr.azurecr.io \
-            --registry-username chargemateacr \
-            --registry-password ${{ secrets.AZURE_REGISTRY_PASSWORD }} \
             --cpu 0.5 --memory 1.0Gi \
-            --min-replicas 1 --max-replicas 1 || \
-          az containerapp update \
-            --name simple-frontend \
-            --resource-group chargeMate \
-            --image chargemateacr.azurecr.io/simple-frontend:latest
+            --min-replicas 1 --max-replicas 1
