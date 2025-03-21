@@ -1,0 +1,49 @@
+name: Deploy Frontend to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Log in to Azure using Service Principal
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Log in to Azure Container Registry
+        run: az acr login --name chargemateacr
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t chargemateacr.azurecr.io/simple-frontend:latest .
+          docker push chargemateacr.azurecr.io/simple-frontend:latest
+
+      - name: Deploy to Azure Container Apps
+        run: |
+          az containerapp create \
+            --name simple-frontend \
+            --resource-group chargeMate \
+            --environment chargemate-env \
+            --image chargemateacr.azurecr.io/simple-frontend:latest \
+            --target-port 80 \
+            --ingress external \
+            --registry-server chargemateacr.azurecr.io \
+            --registry-username chargemateacr \
+            --registry-password ${{ secrets.AZURE_REGISTRY_PASSWORD }} \
+            --cpu 0.5 --memory 1.0Gi \
+            --min-replicas 1 --max-replicas 1 || \
+          az containerapp update \
+            --name simple-frontend \
+            --resource-group chargeMate \
+            --image chargemateacr.azurecr.io/simple-frontend:latest
